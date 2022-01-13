@@ -19,20 +19,6 @@ interface Country {
   }[]
 }
 
-const Card = styled.div`
-  border: 1px solid #a7a7a7;
-  border-radius: 10px;
-  margin: 10px 0;
-  padding: 0 20px;
-  cursor: pointer;
-  box-shadow: 2px 2px 10px -5px black;
-`
-
-const Title = styled.h3`
-  font-family: 'Open Sans', sans-serif;
-  font-weight: 400;
-`
-
 const GET_COUNTRIES = gql`
   query GetCountries($continentCode: String!) {
     countries(filter: {
@@ -52,8 +38,28 @@ const GET_COUNTRIES = gql`
   }
 `
 
+const Card = styled.div`
+  border: 1px solid #a7a7a7;
+  border-radius: 10px;
+  margin: 10px 0;
+  padding: 0 20px;
+  cursor: pointer;
+  box-shadow: 2px 2px 10px -5px black;
+`
+
+const Title = styled.h3`
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 700;
+`
+
+const CountryTitle = styled.h4`
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 400;
+`
+
 export default function ContinentCard({ code, name }: ContinentCard) {
 
+  const [ isOpen, setIsOpen ] = useState<boolean>(false)
   const [ countries, setCountries ] = useState<Country[]>([])
 
   const [getCountries, { loading, error, data }] = useLazyQuery<{ countries: Country[] }>(GET_COUNTRIES, {
@@ -62,18 +68,27 @@ export default function ContinentCard({ code, name }: ContinentCard) {
     }
   })
 
+  function handleOpen() {
+    if (isOpen) {
+      setIsOpen(false)
+    } else {
+      setIsOpen(true)
+      getCountries()
+    }
+  }
+
   useEffect(() => {
     if (data) setCountries(data.countries)
   }, [data])
 
   return (
-    <Card onClick={() => getCountries()}>
+    <Card onClick={handleOpen}>
       <Loading isLoading={loading} size='25px'>
         <Title>
           {name}
         </Title>
-        {countries.map(country => 
-          <h2>{country.name}</h2>
+        {isOpen && countries.map(country => 
+          <CountryTitle>{country.name}</CountryTitle>
         )}
       </Loading>
     </Card>
